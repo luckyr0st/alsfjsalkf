@@ -54,6 +54,14 @@ function App() {
             <a href="#destinations" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Направления</a>
             <a href="#services" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Услуги</a>
             <a href="#idea" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Идея</a>
+            <a
+              href="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-300 hover:text-cyan-400 transition-colors text-sm"
+            >
+              💬 Обратная связь
+            </a>
             <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-sm font-semibold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-lg shadow-purple-500/25">
               Забронировать
             </button>
@@ -388,7 +396,7 @@ function App() {
           <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
             Оставьте заявку и станьте одним из первых космических туристов. Раннее бронирование — скидка 30%.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto mb-6">
             <input
               type="email"
               placeholder="your@email.com"
@@ -398,6 +406,15 @@ function App() {
               Записаться
             </button>
           </div>
+          <a
+            href="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full text-lg font-bold hover:from-green-500 hover:to-emerald-500 transition-all shadow-xl shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105"
+          >
+            <span>💬</span>
+            <span>Обратная связь</span>
+          </a>
         </div>
       </section>
 
@@ -432,6 +449,16 @@ function App() {
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Безопасность</li>
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Карьера</li>
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Контакты</li>
+                <li>
+                  <a
+                    href="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:text-cyan-400 transition-colors"
+                  >
+                    💬 Обратная связь
+                  </a>
+                </li>
               </ul>
             </div>
             <div>
