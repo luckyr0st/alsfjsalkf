@@ -453,10 +453,10 @@ function App() {
       {/* Floating Feedback Button */}
       <button
         onClick={() => setIsModalOpen(true)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300 group"
+        className="fixed bottom-8 right-8 z-[9999] w-16 h-16 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center shadow-2xl shadow-purple-500/40 hover:shadow-purple-500/60 hover:scale-110 transition-all duration-300 group animate-pulse-slow"
         aria-label="Обратная связь"
       >
-        <span className="text-2xl group-hover:scale-110 transition-transform">💬</span>
+        <span className="text-3xl group-hover:scale-110 transition-transform">💬</span>
       </button>
 
       {/* Feedback Modal */}
