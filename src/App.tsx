@@ -4,6 +4,19 @@ function App() {
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [bookingData, setBookingData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    destination: '',
+    date: '',
+    travelers: 1,
+    preparation: false,
+    insurance: false,
+    photoSession: false
+  })
+  const [bookingSubmitted, setBookingSubmitted] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -31,6 +44,26 @@ function App() {
   }, [])
 
   const isVisible = (id: string) => visibleSections.has(id)
+
+  const handleBookingSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setBookingSubmitted(true)
+    setTimeout(() => {
+      setIsBookingOpen(false)
+      setBookingSubmitted(false)
+      setBookingData({
+        name: '',
+        email: '',
+        phone: '',
+        destination: '',
+        date: '',
+        travelers: 1,
+        preparation: false,
+        insurance: false,
+        photoSession: false
+      })
+    }, 3000)
+  }
 
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white font-sans overflow-x-hidden">
@@ -99,7 +132,10 @@ function App() {
             Откройте для себя бескрайние просторы Вселенной. Путешествия к Луне, Марсу и за пределы Солнечной системы — теперь доступны каждому.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-lg font-bold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105">
+            <button 
+              onClick={() => setIsBookingOpen(true)}
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-lg font-bold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
+            >
               Начать путешествие
             </button>
             <button className="px-8 py-4 border border-purple-500/50 rounded-full text-lg font-semibold hover:bg-purple-500/10 transition-all">
@@ -449,6 +485,197 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* Booking Modal */}
+      {isBookingOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn overflow-y-auto"
+          onClick={() => setIsBookingOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl bg-[#0a0a1a] rounded-2xl border border-purple-500/30 shadow-2xl shadow-purple-500/20 overflow-hidden animate-scaleIn my-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-cyan-900/30">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                🚀 Бронирование путешествия
+              </h3>
+              <button
+                onClick={() => setIsBookingOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+                aria-label="Закрыть"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 max-h-[70vh] overflow-y-auto">
+              {bookingSubmitted ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">✨</div>
+                  <h4 className="text-2xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    Заявка отправлена!
+                  </h4>
+                  <p className="text-gray-400">
+                    Наш менеджер свяжется с вами в течение 24 часов для подтверждения бронирования.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleBookingSubmit} className="space-y-5">
+                  {/* Личные данные */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      👤 Ваше имя
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={bookingData.name}
+                      onChange={(e) => setBookingData({...bookingData, name: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                      placeholder="Иван Иванов"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        📧 Email
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={bookingData.email}
+                        onChange={(e) => setBookingData({...bookingData, email: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        📞 Телефон
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={bookingData.phone}
+                        onChange={(e) => setBookingData({...bookingData, phone: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                        placeholder="+7 (999) 123-45-67"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Выбор направления */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-2">
+                      🪐 Направление
+                    </label>
+                    <select
+                      required
+                      value={bookingData.destination}
+                      onChange={(e) => setBookingData({...bookingData, destination: e.target.value})}
+                      className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                    >
+                      <option value="" className="bg-[#0a0a1a]">Выберите направление</option>
+                      <option value="moon" className="bg-[#0a0a1a]">🌙 Луна — от 50 000 ₢ (3 дня)</option>
+                      <option value="mars" className="bg-[#0a0a1a]">🔴 Марс — от 250 000 ₢ (14 дней)</option>
+                      <option value="europa" className="bg-[#0a0a1a]">🪐 Европа — от 800 000 ₢ (45 дней)</option>
+                      <option value="titan" className="bg-[#0a0a1a]">🟠 Титан — от 1 200 000 ₢ (60 дней)</option>
+                      <option value="hotel" className="bg-[#0a0a1a]">🏨 Орбитальный отель — от 150 000 ₢ (7 дней)</option>
+                      <option value="kuiper" className="bg-[#0a0a1a]">💫 Пояс Койпера — от 2 500 000 ₢ (90 дней)</option>
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        📅 Дата вылета
+                      </label>
+                      <input
+                        type="date"
+                        required
+                        value={bookingData.date}
+                        onChange={(e) => setBookingData({...bookingData, date: e.target.value})}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-300 mb-2">
+                        👥 Количество путешественников
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="10"
+                        required
+                        value={bookingData.travelers}
+                        onChange={(e) => setBookingData({...bookingData, travelers: parseInt(e.target.value) || 1})}
+                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Дополнительные опции */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                      ⚡ Дополнительные услуги
+                    </label>
+                    <div className="space-y-3">
+                      <label className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={bookingData.preparation}
+                          onChange={(e) => setBookingData({...bookingData, preparation: e.target.checked})}
+                          className="w-5 h-5 rounded accent-purple-500"
+                        />
+                        <div>
+                          <div className="text-white font-medium">🎓 Подготовка космонавтов</div>
+                          <div className="text-sm text-gray-400">6-месячная программа тренировок — +100 000 ₢</div>
+                        </div>
+                      </label>
+                      <label className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={bookingData.insurance}
+                          onChange={(e) => setBookingData({...bookingData, insurance: e.target.checked})}
+                          className="w-5 h-5 rounded accent-purple-500"
+                        />
+                        <div>
+                          <div className="text-white font-medium">🛡️ Расширенная страховка</div>
+                          <div className="text-sm text-gray-400">Полное покрытие на все случаи — +50 000 ₢</div>
+                        </div>
+                      </label>
+                      <label className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/30 transition-colors cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={bookingData.photoSession}
+                          onChange={(e) => setBookingData({...bookingData, photoSession: e.target.checked})}
+                          className="w-5 h-5 rounded accent-purple-500"
+                        />
+                        <div>
+                          <div className="text-white font-medium">📸 Фотосессия в космосе</div>
+                          <div className="text-sm text-gray-400">Профессиональная съёмка в открытом космосе — +75 000 ₢</div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    className="w-full py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-xl text-lg font-bold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50"
+                  >
+                    🚀 Отправить заявку
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Feedback Button */}
       <button
