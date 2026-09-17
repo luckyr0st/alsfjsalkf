@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 function App() {
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
@@ -54,13 +55,6 @@ function App() {
             <a href="#destinations" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Направления</a>
             <a href="#services" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Услуги</a>
             <a href="#idea" className="text-gray-300 hover:text-cyan-400 transition-colors text-sm">Идея</a>
-            <a
-href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oOC28BJZn3JVcdOKTw/viewform?usp=publish-editor"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-300 hover:text-cyan-400 transition-colors text-sm"            >
-              💬 Обратная связь
-            </a>
             <button className="px-5 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-sm font-semibold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-lg shadow-purple-500/25">
               Забронировать
             </button>
@@ -405,15 +399,6 @@ href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oO
               Записаться
             </button>
           </div>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oOC28BJZn3JVcdOKTw/viewform?usp=publish-editor"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full text-lg font-bold hover:from-green-500 hover:to-emerald-500 transition-all shadow-xl shadow-green-500/30 hover:shadow-green-500/50 hover:scale-105"
-          >
-            <span>💬</span>
-            <span>Обратная связь</span>
-          </a>
         </div>
       </section>
 
@@ -448,16 +433,6 @@ href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oO
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Безопасность</li>
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Карьера</li>
                 <li className="hover:text-cyan-400 cursor-pointer transition-colors">Контакты</li>
-                <li>
-                  <a
-                    href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oOC28BJZn3JVcdOKTw/viewform?usp=publish-editor"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 hover:text-cyan-400 transition-colors"
-                  >
-                    💬 Обратная связь
-                  </a>
-                </li>
               </ul>
             </div>
             <div>
@@ -474,6 +449,51 @@ href="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oO
           </div>
         </div>
       </footer>
+
+      {/* Floating Feedback Button */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full flex items-center justify-center shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-110 transition-all duration-300 group"
+        aria-label="Обратная связь"
+      >
+        <span className="text-2xl group-hover:scale-110 transition-transform">💬</span>
+      </button>
+
+      {/* Feedback Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl h-[80vh] bg-[#0a0a1a] rounded-2xl border border-purple-500/30 shadow-2xl shadow-purple-500/20 overflow-hidden animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-r from-purple-900/30 to-cyan-900/30">
+              <h3 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                💬 Обратная связь
+              </h3>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+                aria-label="Закрыть"
+              >
+                ✕
+              </button>
+            </div>
+            {/* Modal Content - Google Form iframe */}
+            <iframe
+              src="https://docs.google.com/forms/d/e/1FAIpQLSd_gQVOuKOe_NmGGFgABR3RJ4ckcWj5oOC28BJZn3JVcdOKTw/viewform?embedded=true"
+              className="w-full h-[calc(100%-60px)] bg-white"
+              frameBorder="0"
+              title="Форма обратной связи"
+            >
+              Загрузка…
+            </iframe>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
