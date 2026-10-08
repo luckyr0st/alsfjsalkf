@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import { bookingsApi, sendBookingEmail, destinationsApi, type Destination } from './lib/supabase'
+import { type DestinationData } from './data/destinations'
+import CatalogPage from './pages/CatalogPage'
 
 function App() {
+  const navigate = useNavigate()
   const [scrollY, setScrollY] = useState(0)
   const [visibleSections, setVisibleSections] = useState<Set<string>>(new Set())
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isBookingOpen, setIsBookingOpen] = useState(false)
+  const [selectedDestination, setSelectedDestination] = useState<DestinationData | null>(null)
   const [bookingData, setBookingData] = useState({
     name: '',
     email: '',
@@ -17,11 +23,31 @@ function App() {
     photoSession: false
   })
   const [bookingSubmitted, setBookingSubmitted] = useState(false)
+  const [supabaseConnected, setSupabaseConnected] = useState(false)
+  const [destinationsCount, setDestinationsCount] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Проверка подключения к Supabase
+  useEffect(() => {
+    const checkSupabase = async () => {
+      try {
+        const data = await destinationsApi.getAvailable()
+        if (data && data.length > 0) {
+          setSupabaseConnected(true)
+          setDestinationsCount(data.length)
+          console.log('✅ Supabase подключен! Загружено направлений:', data.length)
+        }
+      } catch (error) {
+        console.error('❌ Ошибка подключения к Supabase:', error)
+        setSupabaseConnected(false)
+      }
+    }
+    checkSupabase()
   }, [])
 
   useEffect(() => {
@@ -45,12 +71,54 @@ function App() {
 
   const isVisible = (id: string) => visibleSections.has(id)
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Рассчитываем итоговую цену
+    const destinationPrices: Record<string, number> = {
+      'moon': 50000, 'mars': 250000, 'europa': 800000,
+      'titan': 1200000, 'hotel': 150000, 'kuiper': 2500000
+    }
+    const basePrice = destinationPrices[bookingData.destination] || 50000
+    const extras = (bookingData.preparation ? 100000 : 0) + 
+                   (bookingData.insurance ? 50000 : 0) + 
+                   (bookingData.photoSession ? 75000 : 0)
+    const totalPrice = (basePrice + extras) * bookingData.travelers
+
+    const booking = {
+      name: bookingData.name,
+      email: bookingData.email,
+      phone: bookingData.phone,
+      destination_id: bookingData.destination,
+      destination_name: selectedDestination?.name || bookingData.destination,
+      travel_date: bookingData.date,
+      travelers: bookingData.travelers,
+      preparation: bookingData.preparation,
+      insurance: bookingData.insurance,
+      photo_session: bookingData.photoSession,
+      total_price: totalPrice,
+      status: 'pending' as const
+    }
+
+    // Сохраняем в Supabase
+    try {
+      const savedBooking = await bookingsApi.create(booking)
+      
+      if (savedBooking) {
+        // Отправляем email подтверждение
+        await sendBookingEmail(savedBooking)
+        console.log('Booking saved and email sent:', savedBooking)
+      }
+    } catch (error) {
+      console.error('Failed to save booking:', error)
+      // Продолжаем даже если Supabase недоступен (для демо)
+    }
+
     setBookingSubmitted(true)
     setTimeout(() => {
       setIsBookingOpen(false)
       setBookingSubmitted(false)
+      setSelectedDestination(null)
       setBookingData({
         name: '',
         email: '',
@@ -65,8 +133,22 @@ function App() {
     }, 3000)
   }
 
+  const handleOpenBooking = (destination?: DestinationData) => {
+    if (destination) {
+      setSelectedDestination(destination)
+      setBookingData(prev => ({ ...prev, destination: destination.id }))
+    }
+    setIsBookingOpen(true)
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white font-sans overflow-x-hidden">
+      <Routes>
+        <Route path="/catalog" element={
+          <CatalogPage onBooking={handleOpenBooking} />
+        } />
+        <Route path="/" element={
+          <>
       {/* Stars Background */}
       <div className="fixed inset-0 z-0">
         <div className="stars-bg" />
@@ -119,6 +201,16 @@ function App() {
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm">
             ✨ Первый коммерческий рейс — 2077
           </div>
+          
+          {/* Supabase Connection Status */}
+          <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
+            <div className={`w-2 h-2 rounded-full ${supabaseConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className="text-gray-400">
+              {supabaseConnected 
+                ? `🗄️ Supabase подключён • ${destinationsCount} направлений в базе` 
+                : '⏳ Подключение к базе данных...'}
+            </span>
+          </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
             <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
               Космический
@@ -131,15 +223,34 @@ function App() {
           <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
             Откройте для себя бескрайние просторы Вселенной. Путешествия к Луне, Марсу и за пределы Солнечной системы — теперь доступны каждому.
           </p>
+          
+          {/* Горячее предложение */}
+          <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 border border-orange-500/30 backdrop-blur-sm max-w-xl mx-auto animate-pulse-slow">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-2xl">🔥</span>
+              <span className="text-sm font-bold text-orange-300 uppercase tracking-wider">Горячее предложение</span>
+              <span className="text-2xl">🔥</span>
+            </div>
+            <p className="text-xl font-bold text-white mb-1">
+              Путешествие на Луну со скидкой 30%
+            </p>
+            <p className="text-sm text-gray-300">
+              Раннее бронирование • Всего от <span className="text-orange-400 font-bold">35 000 ₢</span>
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
-              onClick={() => setIsBookingOpen(true)}
+              onClick={() => handleOpenBooking()}
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-lg font-bold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
             >
-              Начать путешествие
+              🌙 Забронировать тур на Луну
             </button>
-            <button className="px-8 py-4 border border-purple-500/50 rounded-full text-lg font-semibold hover:bg-purple-500/10 transition-all">
-              Узнать больше ↓
+            <button 
+              onClick={() => navigate('/catalog')}
+              className="px-8 py-4 border border-purple-500/50 rounded-full text-lg font-semibold hover:bg-purple-500/10 transition-all"
+            >
+              📋 Все направления (12) ↓
             </button>
           </div>
 
@@ -163,10 +274,10 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative z-10 py-24 px-6">
+      <section id="about" className="relative z-10 py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className={`transition-all duration-1000 ${isVisible('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                   О проекте
@@ -177,7 +288,7 @@ function App() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   icon: '🛸',
@@ -197,11 +308,11 @@ function App() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="p-8 rounded-2xl bg-gradient-to-b from-white/5 to-transparent border border-white/10 hover:border-purple-500/30 transition-all hover:transform hover:scale-105 duration-300"
+                  className="p-6 rounded-2xl bg-gradient-to-b from-white/5 to-transparent border border-white/10 hover:border-purple-500/30 transition-all hover:transform hover:scale-105 duration-300"
                 >
-                  <div className="text-4xl mb-4">{item.icon}</div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
+                  <div className="text-3xl mb-3">{item.icon}</div>
+                  <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -292,8 +403,11 @@ function App() {
                       <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                         от {dest.price}
                       </span>
-                      <button className="px-4 py-1.5 rounded-full bg-purple-600/30 border border-purple-500/30 text-sm hover:bg-purple-600/50 transition-colors">
-                        Подробнее
+                      <button 
+                        onClick={() => handleOpenBooking()}
+                        className="px-4 py-1.5 rounded-full bg-purple-600/30 border border-purple-500/30 text-sm hover:bg-purple-600/50 transition-colors"
+                      >
+                        Забронировать
                       </button>
                     </div>
                   </div>
@@ -485,8 +599,11 @@ function App() {
           </div>
         </div>
       </footer>
+          </>
+        } />
+      </Routes>
 
-      {/* Booking Modal */}
+      {/* Booking Modal - вынесено за пределы Routes */}
       {isBookingOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn overflow-y-auto"
@@ -677,7 +794,7 @@ function App() {
         </div>
       )}
 
-      {/* Floating Feedback Button */}
+      {/* Floating Feedback Button - вынесено за пределы Routes */}
       <button
         onClick={() => setIsModalOpen(true)}
         style={{ position: 'fixed', bottom: '32px', right: '32px', zIndex: 9999 }}
@@ -687,7 +804,7 @@ function App() {
         <span className="text-3xl group-hover:scale-110 transition-transform">💬</span>
       </button>
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal - вынесено за пределы Routes */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
