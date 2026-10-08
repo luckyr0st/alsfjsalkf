@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom'
-import { bookingsApi, sendBookingEmail, type Destination } from './lib/supabase'
+import { bookingsApi, sendBookingEmail, destinationsApi, type Destination } from './lib/supabase'
 import { type DestinationData } from './data/destinations'
 import CatalogPage from './pages/CatalogPage'
 
@@ -23,11 +23,31 @@ function App() {
     photoSession: false
   })
   const [bookingSubmitted, setBookingSubmitted] = useState(false)
+  const [supabaseConnected, setSupabaseConnected] = useState(false)
+  const [destinationsCount, setDestinationsCount] = useState(0)
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Проверка подключения к Supabase
+  useEffect(() => {
+    const checkSupabase = async () => {
+      try {
+        const data = await destinationsApi.getAvailable()
+        if (data && data.length > 0) {
+          setSupabaseConnected(true)
+          setDestinationsCount(data.length)
+          console.log('✅ Supabase подключен! Загружено направлений:', data.length)
+        }
+      } catch (error) {
+        console.error('❌ Ошибка подключения к Supabase:', error)
+        setSupabaseConnected(false)
+      }
+    }
+    checkSupabase()
   }, [])
 
   useEffect(() => {
@@ -180,6 +200,16 @@ function App() {
         <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
           <div className="inline-block mb-6 px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm">
             ✨ Первый коммерческий рейс — 2077
+          </div>
+          
+          {/* Supabase Connection Status */}
+          <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
+            <div className={`w-2 h-2 rounded-full ${supabaseConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+            <span className="text-gray-400">
+              {supabaseConnected 
+                ? `🗄️ Supabase подключён • ${destinationsCount} направлений в базе` 
+                : '⏳ Подключение к базе данных...'}
+            </span>
           </div>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
             <span className="bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">

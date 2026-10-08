@@ -121,10 +121,16 @@ export default function CatalogPage({ onBooking }: CatalogPageProps) {
           </div>
         </div>
 
-        {/* Results count */}
-        <p className="text-sm text-gray-400 mb-6">
-          Найдено: {filteredDestinations.length} {filteredDestinations.length === 1 ? 'направление' : 'направлений'}
-        </p>
+        {/* Results count & Supabase Status */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
+          <p className="text-sm text-gray-400">
+            Найдено: {filteredDestinations.length} {filteredDestinations.length === 1 ? 'направление' : 'направлений'}
+          </p>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-gray-400">🗄️ Данные из Supabase</span>
+          </div>
+        </div>
 
         {/* Destinations Grid */}
         {loading ? (
