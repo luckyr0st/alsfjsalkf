@@ -274,10 +274,10 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="relative z-10 py-24 px-6">
+      <section id="about" className="relative z-10 py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <div className={`transition-all duration-1000 ${isVisible('about') ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            <div className="text-center mb-16">
+            <div className="text-center mb-12">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
                 <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                   О проекте
@@ -288,7 +288,7 @@ function App() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-3 gap-6">
               {[
                 {
                   icon: '🛸',
@@ -308,11 +308,11 @@ function App() {
               ].map((item) => (
                 <div
                   key={item.title}
-                  className="p-8 rounded-2xl bg-gradient-to-b from-white/5 to-transparent border border-white/10 hover:border-purple-500/30 transition-all hover:transform hover:scale-105 duration-300"
+                  className="p-6 rounded-2xl bg-gradient-to-b from-white/5 to-transparent border border-white/10 hover:border-purple-500/30 transition-all hover:transform hover:scale-105 duration-300"
                 >
-                  <div className="text-4xl mb-4">{item.icon}</div>
-                  <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                  <p className="text-gray-400 leading-relaxed">{item.description}</p>
+                  <div className="text-3xl mb-3">{item.icon}</div>
+                  <h3 className="text-lg font-bold mb-2">{item.title}</h3>
+                  <p className="text-gray-400 leading-relaxed text-sm">{item.description}</p>
                 </div>
               ))}
             </div>
@@ -599,8 +599,11 @@ function App() {
           </div>
         </div>
       </footer>
+          </>
+        } />
+      </Routes>
 
-      {/* Booking Modal */}
+      {/* Booking Modal - вынесено за пределы Routes */}
       {isBookingOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn overflow-y-auto"
@@ -791,7 +794,7 @@ function App() {
         </div>
       )}
 
-      {/* Floating Feedback Button */}
+      {/* Floating Feedback Button - вынесено за пределы Routes */}
       <button
         onClick={() => setIsModalOpen(true)}
         style={{ position: 'fixed', bottom: '32px', right: '32px', zIndex: 9999 }}
@@ -801,7 +804,7 @@ function App() {
         <span className="text-3xl group-hover:scale-110 transition-transform">💬</span>
       </button>
 
-      {/* Feedback Modal */}
+      {/* Feedback Modal - вынесено за пределы Routes */}
       {isModalOpen && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
@@ -836,9 +839,6 @@ function App() {
           </div>
         </div>
       )}
-          </>
-        } />
-      </Routes>
     </div>
   )
 }

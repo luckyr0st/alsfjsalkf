@@ -60,6 +60,32 @@ export default function CatalogPage({ onBooking }: CatalogPageProps) {
         <div className="stars-bg-3" />
       </div>
 
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0a0a1a]/70 border-b border-purple-500/20">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🚀</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              COSMOTOUR 2077
+            </span>
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            <button 
+              onClick={() => navigate('/')}
+              className="text-gray-300 hover:text-cyan-400 transition-colors text-sm"
+            >
+              Главная
+            </button>
+            <button 
+              onClick={() => navigate('/catalog')}
+              className="text-cyan-400 text-sm font-semibold"
+            >
+              Каталог
+            </button>
+          </div>
+        </div>
+      </nav>
+
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
