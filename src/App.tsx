@@ -131,15 +131,31 @@ function App() {
           <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed">
             Откройте для себя бескрайние просторы Вселенной. Путешествия к Луне, Марсу и за пределы Солнечной системы — теперь доступны каждому.
           </p>
+          
+          {/* Горячее предложение */}
+          <div className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-orange-500/20 via-red-500/20 to-pink-500/20 border border-orange-500/30 backdrop-blur-sm max-w-xl mx-auto animate-pulse-slow">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <span className="text-2xl">🔥</span>
+              <span className="text-sm font-bold text-orange-300 uppercase tracking-wider">Горячее предложение</span>
+              <span className="text-2xl">🔥</span>
+            </div>
+            <p className="text-xl font-bold text-white mb-1">
+              Путешествие на Луну со скидкой 30%
+            </p>
+            <p className="text-sm text-gray-300">
+              Раннее бронирование • Всего от <span className="text-orange-400 font-bold">35 000 ₢</span>
+            </p>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button 
               onClick={() => setIsBookingOpen(true)}
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-full text-lg font-bold hover:from-purple-500 hover:to-cyan-500 transition-all shadow-xl shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105"
             >
-              Начать путешествие
+              🌙 Забронировать тур на Луну
             </button>
             <button className="px-8 py-4 border border-purple-500/50 rounded-full text-lg font-semibold hover:bg-purple-500/10 transition-all">
-              Узнать больше ↓
+              Все направления ↓
             </button>
           </div>
 
